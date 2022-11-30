@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
+	
+	<!-- Root Context: defines shared resources visible to all other web components -->
+	<!-- DataSource 등록, bean객체생성, destroy-method="close" 닫아주는 메소드를 사용하겠다-->
+	<!-- property태그는 셋터를 통해 값을 집어넣는 방법이다.(매개변수 있는 생성자를 통한게 아님!) -->
+	<bean class="org.apache.commons.dbcp.BasicDataSource" id="realDataSource" destroy-method="close">
+		<property name="driverClassName" value="oracle.jdbc.driver.OracleDriver"/>
+		<property name="url" value="jdbc:oracle:thin:@112.220.226.196:1521:dowellcom"/>
+		<property name="username" value="dowell_dev"/>
+		<property name="password" value="qwer1234"/>
+	</bean>
+	<bean id="dataSource" class="net.sf.log4jdbc.Log4jdbcProxyDataSource">
+		<constructor-arg ref="realDataSource"/>
+		<property name="logFormatter">
+			<bean class="net.sf.log4jdbc.tools.Log4JdbcCustomFormatter">
+				<property name="loggingType" value="MULTI_LINE"/>
+				<property name="sqlPrefix" value="[SQL]"/>
+			</bean>
+		</property>
+	</bean>
+	
+	<!-- SqlSession 빈 등록, 위에 bean태그 id="dataSource"를 참고, 마이바티스컨피그파일도 읽어와야 팩토리 등등읽어옴-->
+	<bean id="sqlSession" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"></property>
+		<property name="configLocation" value="classpath:mybatis-config.xml"/>
+	</bean>
+	<!-- 매개변수 있는 생성자로 만드는 것이다. constructor-arg class에 있는 템플릿이 매개변수에 있는 생성자로 받아드리기 때문에-->
+	<bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg ref="sqlSession"/>
+	</bean>
+	<!-- ref는 참조이다. -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+	<!-- 파일업로드 -->
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="maxUploadSize" value="100000000"/>
+		<property name="maxInMemorySize" value="100000000"/>
+	</bean>
+	
+	
+	
+	
+	
+</beans>

@@ -1,0 +1,16 @@
+package com.kh.spring.member.model.dao;
+
+import org.mybatis.spring.SqlSessionTemplate;
+import org.springframework.stereotype.Repository;
+
+import com.kh.spring.member.model.vo.Member;
+
+@Repository("mDAO")
+public class MemberDAO {
+
+	public Member login(SqlSessionTemplate sqlSession, Member m) {
+		//보낼데이터 있음 m 아이디 비밀번호
+		return sqlSession.selectOne("memberMapper.login", m);
+	}
+
+}

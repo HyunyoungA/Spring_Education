@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<qualifiedTypeNameHistroy>
+<fullyQualifiedTypeName name="org.springframework.web.servlet.handler.HandlerInterceptorAdapter"/>
+<fullyQualifiedTypeName name="javax.servlet.http.HttpSession"/>
+<fullyQualifiedTypeName name="org.springframework.web.servlet.HandlerInterceptor"/>
+<fullyQualifiedTypeName name="com.kh.spring.member.model.vo.Member"/>
+<fullyQualifiedTypeName name="org.slf4j.LoggerFactory"/>
+<fullyQualifiedTypeName name="org.slf4j.Logger"/>
+<fullyQualifiedTypeName name="org.aopalliance.intercept.Joinpoint"/>
+<fullyQualifiedTypeName name="org.aspectj.lang.JoinPoint"/>
+<fullyQualifiedTypeName name="org.aspectj.lang.Signature"/>
+<fullyQualifiedTypeName name="org.aspectj.lang.ProceedingJoinPoint"/>
+<fullyQualifiedTypeName name="org.springframework.stereotype.Component"/>
+<fullyQualifiedTypeName name="org.aspectj.lang.annotation.Aspect"/>
+<fullyQualifiedTypeName name="org.aspectj.lang.annotation.Pointcut"/>
+<fullyQualifiedTypeName name="org.aspectj.lang.annotation.Around"/>
+<fullyQualifiedTypeName name="org.springframework.transaction.annotation.Transactional"/>
+<fullyQualifiedTypeName name="org.springframework.web.bind.annotation.ModelAttribute"/>
+<fullyQualifiedTypeName name="com.kh.spring.board.model.vo.Board"/>
+<fullyQualifiedTypeName name="org.springframework.web.servlet.ModelAndView"/>
+<fullyQualifiedTypeName name="java.util.ArrayList"/>
+<fullyQualifiedTypeName name="com.kh.spring.board.model.service.BoardService"/>
+</qualifiedTypeNameHistroy>

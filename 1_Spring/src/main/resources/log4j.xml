@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration PUBLIC "-//APACHE//DTD LOG4J 1.2//EN" "log4j.dtd">
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+
+	<!-- Appenders -->
+	<!-- 
+		appender : 전달된 로그를 어디에 출력할지 결정
+		ConsoleAppender		로그를 콘솔에 출력하기 위한 Appender
+		JDBCAppender		로그를 DB에 출력하기 위한 Appender
+		FileAppender		로그를 파일에 출력하기 위한 Appender
+							지정파일에 로그가 계속 남아 크기가 지나치게 커지고 지속적인 로그 관리가 불가능하다는 단점
+		RollingFileAppender  FileAppender보완한 개념
+							일정 조건 후 기존 파일을 백업 파일로 바꾸고 다시 처음부터 시작(ex. DailyRollingFileAppender)
+	 	layout : 로그를 어떤 형식으로 출력할지 결정
+	 		DateLayout HTMLLayout PatternLayout(디버깅에 가장 적합) SimpleLayout XMLLayout
+	 		%p		: debug, info, warn, error, fatal등의 priority
+	 		%m		: 로그 내용 출력
+	 		%d		: 로깅 이벤트가 발생한 시간 출력(프로그램 속도를 느리게 할 수 있음)
+	 				  포맷을 %d{HH:mm:ss, SSS}와 같은 형태로 사용하며 SimpleDateFormat에 따른 포멧팅을 하면 됨
+	 		%t		: 로깅 이벤트가 발생된 스레드 이름 출력
+	 		%%		: % 출력
+	 		%n		: 개행문자 출력
+	 		%c		: package(카테고리) 출력
+	 		%c{n}	: n(숫자)만큼의 package를 하단부터 역으로 출력
+	 		%C		: 호출자의 클래스 명 출력
+	 		%F		: 로깅이 발생한 프로그램 파일 명 출력
+	 		%l		: 로깅이 발생한 caller의 정보 출력
+	 		%L		: 로깅이 발생한 caller의 라인수 출력
+	 		%M		: 로깅이 발생한 method이름 출력
+	 		%r		: 애플리케이션 시작 이후부터 로깅이 발생한 시점의 시간(밀리세컨) 출력
+	 		value="%-5p: %c - %m%n"
+	 			   INFO(%-5p: 왼쪽정렬(5개 공간)INFO 띄어쓰기까지 공간이 5개공간)
+	 			   com.kh.spring.HomeController(%c) : 패키지
+	 			    - (%m):내용
+	 			   Welcom home! the client locale id ko_KR(%d)
+	 			   %n:띄어쓰기한 개행문자 출력
+	 			   appender부분은 개발자가 로그를 출력하려고 만든 부분
+	 			   
+	 			   
+	 -->
+	<!-- 회원가입페이지 들어가면 나오게 추가 %c{1}클래스명중 끝에 한 개-->
+	<appender name="myConsole" class="org.apache.log4j.ConsoleAppender">
+		<param name="Target" value="System.out" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%-5p: %c{1}.%M{%L} - %m%n" />
+		</layout>
+	</appender>
+
+	 <!-- 기존 -->
+	<appender name="console" class="org.apache.log4j.ConsoleAppender">
+		<param name="Target" value="System.out" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%-5p: %c - %m%n" />
+		</layout>
+	</appender>
+	
+	<!-- **출력대상이 파일이어서 하나 더 만들어준다 value="true" : 이어쓰기 io의 append처럼 이어쓸수있게
+		백업의 날짜가 들어갈수있도록 형식 지정.
+	 -->
+	<appender name="myDailyFile" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="File" value="/logs/member/login/log"/>
+		<param name="Append" value="true"/>
+		<param name="encoding" value="UTF-8"/>
+		<param name="DatePattern" value="'.'yyyyMMdd"/>
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{yy-MM-dd HH:mm:ss} [%p] %c{1}.%M{%L} - %m%n"/>
+		</layout>
+	</appender>
+	
+	<appender name="sqlLogger" class="org.apache.log4j.ConsoleAppender">
+         <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%-5p: %m%n" />
+         </layout>
+   </appender>
+	<!-- Application Loggers -->
+	<!-- 등록된 로그들을 받아주는 역할 
+		권장하는 로그를 다 만들어져있는것이다.
+		level : DEBUG < INFO < WARN < ERROR < FATAL
+		설정한 level 이상만 출력 -> 오른쪽으로 갈수록 심각한 에러
+			ex.level info, debug는 출력X(설정 아래의 것들은 안보인다. ex.WARN을 설정하면 INFO,DEBUG안보임)
+		fatal: 아주 심각한 에러발생
+		error: 어떤 요청 처리 중 문제 발생
+		warn: 프로그램 실행에는 문제 없지만 향후 시스템 에러의 원인이 될 수 있는 경고성 메세지
+		info: 상태 변경과 같은 정보성 메세지
+		debug: 개발 디버그 용도로 사용하는 메세지
+		trace: 디버그가 너무 광범위한 것을 해결하기 위해 좀 더 상세한 이벤트를 나타냄
+	-->
+	<logger name="com.kh.spring">
+		<level value="info" />
+	</logger>
+	
+	<!-- 3rdparty Loggers -->
+	<logger name="org.springframework.core">
+		<level value="info" />
+	</logger>
+	
+	<logger name="org.springframework.beans">
+		<level value="info" />
+	</logger>
+	
+	<logger name="org.springframework.context">
+		<level value="info" />
+	</logger>
+
+	<logger name="org.springframework.web">
+		<level value="info" />
+	</logger>
+<!-- 	additivity="false"->루트로 안내려가겠다는 뜻 2번찍히는거 한번찍히게할 수 있다 -->
+	<logger name="com.kh.spring.log.Log4jTest" additivity="false">
+		<level value="debug"/>
+		<appender-ref ref="console" />
+	</logger>
+	<!-- **실습  멤버컨드롤러 안에 회원가임이랑 로그인 같이 있어서 같은 log파일에 담기고 있다-->
+	<logger name="com.kh.spring.member.controller.MemberController" additivity="false">
+		<level value="debug"/>
+		<appender-ref ref="myConsole" />
+<!-- 		<appender-ref ref="myDailyFile"/> -->
+	</logger> 
+	
+	<logger name="com.kh.spring.common.interceptor.TestInterceptor" additivity="false">
+		<level value="debug"/>
+		<appender-ref ref="myConsole"></appender-ref>
+	</logger>
+	
+	<logger name="com.kh.spring.common.interceptor.BoardEnterInterceptor" additivity="false">
+		<level value="debug"/>
+		<appender-ref ref="myConsole"></appender-ref>
+	</logger>
+	
+	<logger name="com.kh.spring.common.interceptor.LoginInterceptor" additivity="false">
+		<level value="info"/>
+		<appender-ref ref="myDailyFile"/>
+	</logger>
+	
+	<logger name="jdbc.sqlonly" additivity="false">
+		<level value="info"/>
+		<appender-ref ref="sqlLogger"/>
+	</logger>
+	<logger name="jdbc.resultsettable" additivity="false">
+		<level value="info"/>
+		<appender-ref ref="sqlLogger"/>
+	</logger>
+	
+	<logger name="com.kh.spring.common.aop">
+		<level value="debug"/>
+	</logger>
+	
+	<!-- Root Logger -->
+	<!-- 
+		모든 자식 logger등의 로깅 출력이 root logger를 통해 일어난다
+		ref="console" ->상단에 appender를 참조한다.
+		이때문에 모든 로거들의 출력을 통해 권장한다.
+	 -->
+	<root>
+		<priority value="warn" />
+		<appender-ref ref="console" />
+	</root>
+	
+</log4j:configuration>

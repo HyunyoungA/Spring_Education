@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="memberMapper">
+	<select id="login" resultMap="memberResultSet">
+		select *
+		from member
+<!-- 		where id=#{id} and pwd=#{pwd} and member_status='Y' -->
+		<!-- 암호화 때문에 일단 아이디만 비교해서 가져온다 비밀번호는 비교X -->
+		where id=#{id} and member_status='Y'
+	</select>
+	<resultMap type="Member" id="memberResultSet">
+		<id property="id" column="ID"/>
+		<result property="pwd" column="PWD" />
+		<result property="name" column="NAME" />
+		<result property="nickName" column="NICKNAME" />
+		<result property="email" column="EMAIL" />
+		<result property="gender" column="GENDER" />
+		<result property="age" column="AGE" />
+		<result property="phone" column="PHONE" />
+		<result property="address" column="ADDRESS" />
+		<result property="enrollDate" column="ENROLL_DATE"/>
+		<result property="updateDate" column="UPDATE_DATE"/>
+		<result property="memberStatus" column="MEMBER_STATUS"/>
+	</resultMap>
+	
+	<insert id="insertMember">
+		insert into member
+		values(#{id}, #{pwd}, #{name}, #{nickName}, #{email}, #{gender}, #{age}, #{phone},
+				#{address}, sysdate, sysdate, default)
+	</insert>
+	
+	<update id="updateMember">
+		update member
+		set name = #{name}, nickName = #{nickName}, email = #{email},
+			gender = #{gender}, age = #{age}, phone = #{phone}, address = #{address}
+		where id = #{id}
+	</update>
+	<!-- 비밀번호 변경 -->
+	<update id="pwdUpdate">
+		update member
+		set pwd = #{newPwd1}
+		where id= #{id}
+	</update>
+	
+	<!-- 회원탈퇴 -->
+	<update id="deleteMember">
+		update member
+		set member_status = 'N'
+		where id = #{id}
+	</update>
+	
+	<!-- 아이디 중복확인 -->
+	<select id="checkIdDup" resultType="_int">
+		select count(*)
+		from member
+		where id = #{id}
+	</select>
+</mapper>

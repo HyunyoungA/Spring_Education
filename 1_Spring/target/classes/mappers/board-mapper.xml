@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="boardMapper">
+	<select id="getListCount" resultType="_int">
+		select count(*)
+		from board
+		where board_status='Y'
+	</select>
+	
+<!-- 	<select id="getBoardList" resultMap="boardResultSet"> -->
+<!-- 		select * -->
+<!-- 		from board -->
+<!-- 			 join member on(board_writer = id) -->
+<!-- 		where board_status = 'Y' -->
+<!-- 		order by board_id desc -->
+<!-- 	</select> -->
+	<resultMap type="Board" id="boardResultSet">
+		<id column="CUST_NO" property="CUST_NO"/>
+		<result column="CUST_NM" property="CUST_NM"/>
+	</resultMap>
+<!-- 	<insert id="insertBoard"> -->
+<!-- 		insert into board -->
+<!-- 		values (seq_bid.nextval, #{boardTitle}, #{boardWriter}, #{boardContent}, -->
+<!-- 				#{originalFileName}, #{renameFileName}, default, -->
+<!-- 				sysdate, sysdate, default) -->
+<!-- 	</insert> -->
+	<!-- 조회수 -->
+	<update id="addReadCount">
+		update board
+		set BOARD_COUNT = BOARD_COUNT + 1
+		where BOARD_ID = #{bId}
+	</update>
+	<!-- 글 상세보기 / 주소창에 숫자를 바꿔서 들어가는 사람때문에 board_status = 'Y'추가 -->
+	<select id="selectBoard" resultMap="boardResultSet">
+		select *
+		from board
+			join member on (board_writer = id)
+		where BOARD_ID = #{bId} and board_status = 'Y'
+	</select>
+	<update id="updateBoard">
+		update board
+		set board_title=#{boardTitle}, board_content=#{boardContent},
+			<if test="originalFileName != null">
+			original_filename=#{originalFileName},
+			</if>
+			rename_filename=#{renameFileName}, board_modify_date=sysdate
+		where board_id=#{boardId}
+	</update>
+	<!-- 게시글삭제 -->
+	<update id="deleteBoard">
+		update board
+		set board_status = 'N'
+		where board_id = #{bId}
+	</update>
+	
+	<!-- 댓글등록 -->
+	<insert id="insertReply">
+		insert into reply
+		values(seq_rid.nextval, #{replyContent}, #{refBoardId}, #{replyWriter}, sysdate, sysdate, default)
+	</insert>
+	<!-- 댓글 리스트 조회 -->
+	<select id="selectReplyList" resultMap="replyResultSet">
+      select *
+      from reply
+          join member on (reply_writer = id)
+      where ref_board_id=#{bId} and reply_status = 'Y'
+      order by reply_id desc
+   </select>
+   <resultMap type="Reply" id="replyResultSet">
+      <id property="replyId" column="REPLY_ID"/>
+      <result property="replyContent" column="REPLY_CONTENT"/>
+      <result property="refBoardId" column="REF_BOARD_ID"/>
+      <result property="replyWriter" column="REPLY_WRITER"/>
+      <result property="nickName" column="NICKNAME"/>
+      <result property="replyCreateDate" column="REPLY_CREATE_DATE"/>
+      <result property="replyModifyDate" column="REPLY_MODIFY_DATE"/>
+      <result property="replyStatus" column="REPLY_STATUS"/>
+   </resultMap>
+<!--    rownum <= 5 태그 시작으로 인지한다 <![CDATA[]>를 사용한다 부호표시로 인지할 수 있다-->
+   <select id="topList" resultMap="boardResultSet">
+   		<![CDATA[
+	   		select *
+			from(select *
+			    from board
+			        join member on(board_writer = id)
+			    ORDER BY BOARD_COUNT desc)
+			where board_status = 'Y' and rownum <= 5
+		]]>
+  </select>
+  
+   <select id="main" resultMap="boardResultSet">
+   	select CUST_NO, CUST_NM
+	from CS_CUST01_MT
+   </select>
+   
+   
+   
+</mapper>

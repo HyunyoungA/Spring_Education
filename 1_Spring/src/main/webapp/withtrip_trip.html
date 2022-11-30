@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<!-- 한글폰트 -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Babylonica&family=Noto+Sans+KR:wght@300&display=swap" rel="stylesheet">
+<!-- 영어폰트 -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Babylonica&family=Noto+Sans+KR:wght@300&family=Raleway:wght@300&display=swap" rel="stylesheet">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Babylonica&family=Noto+Sans+KR:wght@300&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Babylonica&family=Noto+Sans+KR:wght@300&family=Raleway:wght@300&display=swap');
+#nav {
+	width: 100%;
+	height: 50px;
+	background-color: #F6F6F6;
+}
+/* 전체페이지 */
+.trip-page {
+	box-sizing: border-box;
+	width: 100%;
+	height: 100%;
+	display: block;
+	font-family: 'Noto Sans KR', sans-serif;
+	font-size: 16px;
+	background-color: #F6F6F6 !important;
+}
+/* 페이지 헤더 */
+.page-head {
+	background: url(resources/images/s3.jpg);
+	background-size: cover;
+	background-position: center;
+	background-repeat: no-repeat;
+}
+
+.header-wrapper {
+	background-color: rgba(0, 0, 0, 0.30);
+	position: relative;
+	padding: 120px 0px;
+}
+
+.container {
+	padding-right: 115px;
+	padding-left: 115px;
+	margin-right: auto;
+	margin-left: auto;
+	box-sizing: border-box;
+}
+
+.trip-title {
+	background-color: transparent;
+	font-size: 17px;
+	float: left;
+	list-style: none;
+}
+
+.row {
+	flex-wrap: wrap;
+	display: flex;
+	padding: 0px 130px;
+}
+
+.trip-title-li {
+	color: white;
+	display: block;
+	margin-bottom: 3px;
+	font-size: 15px;
+}
+
+#trip-title-text {
+	font-size: 35px;
+	font-family: 'Raleway', sans-serif;
+}
+#trip-title-text2{
+	font-family: 'Raleway', sans-serif;
+}
+.img-title {
+	display: block;
+	position: relative;
+	max-width: 100%;
+	height: auto;
+}
+/* 검색창 */
+#search{
+	text-align: center;
+	padding-top: 60px;
+}
+#searchValue:focus{
+	outline:2px solid #4285F4;
+}
+
+#searchValue{
+    background-image: url(resources/images/search.png);
+    opacity: 0.5;
+    background-position: 8px center;
+    background-repeat: no-repeat;
+    background-size: 37px;
+    border: 1px solid #ccc;
+    border-radius: 80px;
+    padding: 11px 5px;
+    text-indent: 46px;
+    width: 745px;
+    height: 58px;
+}
+
+input:focus {
+    outline-color: var(--color-green);
+    outline-width: 1px;
+}
+#serchValue :focus{
+     background-size: 25px;
+}
+
+/* 동행리스트 */
+.trip-list {
+	width: 33.3%;
+}
+
+.trip-list-in {
+	padding-bottom: 10px;
+}
+
+.trip-list-space {
+	padding: 50px;
+}
+
+.box-shadow {
+	cursor: pointer;
+	box-shadow: 5px 5px 5px 5px #EDEDED;
+}
+
+.trip-img {
+	position: relative;
+	overflow:hidden;
+	height:220px;
+	text-align: center;
+	background-color: #fff;
+}
+
+.trip-img-1 {
+	position: relative;
+    max-width: 100%;
+    height: auto;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    background-image: url(resources/images/v1.jfif);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 150%;
+    text-indent: -9999px;
+}
+
+.trip-img-1:hover {
+transition: all 0.6s ease-in-out;
+	transform: scale(1.2);
+}
+
+.trip-list-text {
+	margin: 10px 10px 0px 10px;
+	font-weight: bolder;
+}
+
+#trip-price {
+	color: #6495ED;
+	font-size: 22px;
+	font-size: 22px;
+}
+
+.trip-category-pointer {
+	cursor: pointer;
+}
+
+#trip-list-p2{
+	display: flex;
+}
+/* 글쓰기 버튼 */
+#trip-writing {
+	margin-left: 80%;
+	margin: 0 0 20px 83%;
+	width: 70px;
+	height: 30px;
+	font-size: 15px;
+	background: #6495ED;
+	cursor: pointer;
+	border-style: none;
+	color: white;
+	border-radius: 3px;
+}
+
+#trip-writing:hover {
+	background-color: black;
+	color: white;
+}
+/* 페이징버튼 */
+.paging-button {
+	background-color: white;
+	border: 1px solid #e6e6e6;
+	width: 30px;
+	height: 30px;
+	border-radius: 50%;
+	margin-bottom: 60px;
+	font-weight: 700;
+	color: #4285F4;
+}
+
+.paging-button:hover {
+	background-color: #4285F4;
+	color: white;
+}
+/* 임시풋터 */
+#footer {
+	width: 100%;
+	height: 150px;
+	background-color: #BDBDBD;
+}
+</style>
+</head>
+<body>
+	<div id="nav"></div>
+	<div class="trip-page">
+		<!-- 이미지-헤더-start -->
+		<div class="page-head">
+			<div class="header-wrapper">
+				<div class="container">
+					<div class="row">
+						<ol class="trip-title">
+							<li class="trip-title-li" id="trip-title-text"><b>Trip</b></li>
+							<li class="trip-title-li" id="trip-title-text2">Find a friend to travel with</li>
+						</ol>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- 이미지-헤더-end -->
+		<!-- 검색창 -->
+		<div id="search">
+			<input id="searchValue" type="search" placeholder="동행을 검색해보세요!">
+		</div>
+		<br>
+		<!-- 검색창-end -->
+		<!-- 동행 리스트 -->
+		<div class="row">
+			<!-- 리스트 1 -->
+			<div class="trip-list">
+				<div class="trip-list-space">
+					<div class="box-shadow">
+						<div class="trip-img">
+							<img class="trip-img-1">
+						</div>
+						<div class="trip-list-in">
+							<p class="trip-list-text">베트남 나트랑 가실분 !</p>
+							<p class="trip-list-text" id="trip-price">여행날짜 : 2022.07.13</p>
+							<div id="trip-list-p2">
+								<p class="trip-list-text">조회수 [ 23 ]</p>
+								<p class="trip-list-text">참여인원 [ 2 ]</p>
+							</div>
+							<p class="trip-list-text">닉네임 나트랑트랑</p>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- 리스트 2 -->
+			<div class="trip-list">
+				<div class="trip-list-space">
+					<div class="box-shadow">
+						<div class="trip-img">
+							<img class="trip-img-1">
+						</div>
+						<div class="trip-list-in">
+							<p class="trip-list-text">베트남 나트랑 가실분 !</p>
+							<p class="trip-list-text" id="trip-price">여행날짜 : 2022.07.13</p>
+							<div id="trip-list-p2">
+								<p class="trip-list-text">조회수 [ 23 ]</p>
+								<p class="trip-list-text">참여인원 [ 2 ]</p>
+							</div>
+							<p class="trip-list-text">닉네임 나트랑트랑</p>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- 리스트 3 -->
+			<div class="trip-list">
+				<div class="trip-list-space">
+					<div class="box-shadow">
+						<div class="trip-img">
+							<img class="trip-img-1">
+						</div>
+						<div class="trip-list-in">
+							<p class="trip-list-text">베트남 나트랑 가실분 !</p>
+							<p class="trip-list-text" id="trip-price">여행날짜 : 2022.07.13</p>
+							<div id="trip-list-p2">
+								<p class="trip-list-text">조회수 [ 23 ]</p>
+								<p class="trip-list-text">참여인원 [ 2 ]</p>
+							</div>
+							<p class="trip-list-text">닉네임 나트랑트랑</p>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- 리스트 4 -->
+			<div class="trip-list">
+				<div class="trip-list-space">
+					<div class="box-shadow">
+						<div class="trip-img">
+							<img class="trip-img-1">
+						</div>
+						<div class="trip-list-in">
+							<p class="trip-list-text">베트남 나트랑 가실분 !</p>
+							<p class="trip-list-text" id="trip-price">여행날짜 : 2022.07.13</p>
+							<div id="trip-list-p2">
+								<p class="trip-list-text">조회수 [ 23 ]</p>
+								<p class="trip-list-text">참여인원 [ 2 ]</p>
+							</div>
+							<p class="trip-list-text">닉네임 나트랑트랑</p>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- 리스트 5 -->
+			<div class="trip-list">
+				<div class="trip-list-space">
+					<div class="box-shadow">
+						<div class="trip-img">
+							<img class="trip-img-1">
+						</div>
+						<div class="trip-list-in">
+							<p class="trip-list-text">베트남 나트랑 가실분 !</p>
+							<p class="trip-list-text" id="trip-price">여행날짜 : 2022.07.13</p>
+							<div id="trip-list-p2">
+								<p class="trip-list-text">조회수 [ 23 ]</p>
+								<p class="trip-list-text">참여인원 [ 2 ]</p>
+							</div>
+							<p class="trip-list-text">닉네임 나트랑트랑</p>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- 리스트 6 -->
+			<div class="trip-list">
+				<div class="trip-list-space">
+					<div class="box-shadow">
+						<div class="trip-img">
+							<img class="trip-img-1">
+						</div>
+						<div class="trip-list-in">
+							<p class="trip-list-text">베트남 나트랑 가실분 !</p>
+							<p class="trip-list-text" id="trip-price">여행날짜 : 2022.07.13</p>
+							<div id="trip-list-p2">
+								<p class="trip-list-text">조회수 [ 23 ]</p>
+								<p class="trip-list-text">참여인원 [ 2 ]</p>
+							</div>
+							<p class="trip-list-text">닉네임 나트랑트랑</p>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- 리스트 7 -->
+			<div class="trip-list">
+				<div class="trip-list-space">
+					<div class="box-shadow">
+						<div class="trip-img">
+							<img class="trip-img-1">
+						</div>
+						<div class="trip-list-in">
+							<p class="trip-list-text">베트남 나트랑 가실분 !</p>
+							<p class="trip-list-text" id="trip-price">여행날짜 : 2022.07.13</p>
+							<div id="trip-list-p2">
+								<p class="trip-list-text">조회수 [ 23 ]</p>
+								<p class="trip-list-text">참여인원 [ 2 ]</p>
+							</div>
+							<p class="trip-list-text">닉네임 나트랑트랑</p>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- 리스트 8 -->
+			<div class="trip-list">
+				<div class="trip-list-space">
+					<div class="box-shadow">
+						<div class="trip-img">
+							<img class="trip-img-1">
+						</div>
+						<div class="trip-list-in">
+							<p class="trip-list-text">베트남 나트랑 가실분 !</p>
+							<p class="trip-list-text" id="trip-price">여행날짜 : 2022.07.13</p>
+							<div id="trip-list-p2">
+								<p class="trip-list-text">조회수 [ 23 ]</p>
+								<p class="trip-list-text">참여인원 [ 2 ]</p>
+							</div>
+							<p class="trip-list-text">닉네임 나트랑트랑</p>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- 리스트 9 -->
+			<div class="trip-list">
+				<div class="trip-list-space">
+					<div class="box-shadow">
+						<div class="trip-img">
+							<img class="trip-img-1">
+						</div>
+						<div class="trip-list-in">
+							<p class="trip-list-text">베트남 나트랑 가실분 !</p>
+							<p class="trip-list-text" id="trip-price">여행날짜 : 2022.07.13</p>
+							<div id="trip-list-p2">
+								<p class="trip-list-text">조회수 [ 23 ]</p>
+								<p class="trip-list-text">참여인원 [ 2 ]</p>
+							</div>
+							<p class="trip-list-text">닉네임 나트랑트랑</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<button id="trip-writing">글쓰기</button>
+		<div class="paging" align="center">
+			<button class="paging-button">&lt;</button>
+			<button class="paging-button">1</button>
+			<button class="paging-button">2</button>
+			<button class="paging-button">3</button>
+			<button class="paging-button">&gt;</button>
+		</div>
+	</div>
+	<div id="footer"></div>
+</body>
+</html>

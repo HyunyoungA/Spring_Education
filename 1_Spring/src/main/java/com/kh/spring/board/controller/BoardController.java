@@ -1,0 +1,307 @@
+package com.kh.spring.board.controller;
+
+import java.io.File;
+import java.io.IOException;
+import java.sql.Date;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonIOException;
+import com.kh.spring.board.model.exception.BoardException;
+import com.kh.spring.board.model.service.BoardService;
+import com.kh.spring.board.model.vo.Board;
+import com.kh.spring.board.model.vo.PageInfo;
+import com.kh.spring.board.model.vo.Reply;
+import com.kh.spring.common.Pagination;
+import com.kh.spring.member.model.vo.Member;
+
+@Controller
+public class BoardController {
+
+	@Autowired
+	private BoardService bService;
+	
+	@RequestMapping("blist.bo")
+	public ModelAndView boardList(@RequestParam(value="page", required=false) Integer page, ModelAndView mv) {
+		//페이징처리
+		//Integer : Autoboxing, 언박싱가능하여 
+		//required=false : 페이지가 없을때는 false를 반환하여 에러가 나지않게 한다.
+		int currentPage = 1;
+		if(page != null) {//페이지가 넘어왔는지 안넘어왔는지 ->존재의 경우를 null, nullX 인지 
+			currentPage = page;
+		}
+		
+		int listCount = bService.getListCount();
+//		System.out.println(listCount);
+		
+		//페이지네이션
+		PageInfo pi = Pagination.getPageInfo(currentPage, listCount);
+		
+		ArrayList<Board> list = bService.getBoardList(pi);
+		
+//		System.out.println(list);
+		
+		if(list != null) {
+			mv.addObject("list", list);
+			mv.addObject("pi", pi);
+			mv.setViewName("boardListView");
+		} else {
+			throw new BoardException("게시글 전체 조회에 실패했습니다.");
+		}
+		
+		return mv;
+	}
+	
+	@RequestMapping("binsertView.bo")
+	public String boardinsertForm() {
+		
+		return "boardInsertForm";
+	}
+	
+	@RequestMapping("binsert.bo")
+	public String insertBoard(@ModelAttribute Board b,
+			@RequestParam("uploadFile") MultipartFile uploadFile, 
+			HttpServletRequest request) {
+		System.out.println("컨트롤러:" +b);
+//		System.out.println(uploadFile);
+		//uploadFile로 오리진파일이름은 가져올 수 있는데 rename은 uploadFile만으로는 가져오기 힘들다.
+		//그래서 밑에 return renameFileName으로 새로운 이름을 반환해서 가져온다.
+		if(uploadFile != null && !uploadFile.isEmpty()) {//null는 없다고 단정지을 수 없음. 자르파일 자체 문제가 생길수있다.인터넷문제 이러면 null이 뜰 수 있다.
+			String renameFileName = saveFile(uploadFile, request);
+		
+			b.setOriginalFileName(uploadFile.getOriginalFilename());
+			b.setRenameFileName(renameFileName);
+		}
+		int result = bService.insertBoard(b);
+		
+		if(result > 0) {
+			return "redirect:blist.bo";
+		} else {
+			throw new BoardException("게시글 등록에 실패하였습니다.");
+		}
+	
+	}
+	//사용자 정의 메소드 (파일저장)
+	public String saveFile(MultipartFile file, HttpServletRequest request) {
+		//main/webapp/resources/buploadFile접근하기 위해 request사용
+		String root = request.getSession().getServletContext().getRealPath("resources");
+		String savePath = root + "\\buploadFiles";// \한개만 사용하면 (이스케이프사용)뒤에 문자와 붙을 수 있어서 \\두개를 사용해서 \로 인지하고, \하나만 사용할 수도있다.
+		
+		File folder = new File(savePath);
+		if(!folder.exists()) {
+			folder.mkdirs();
+		}
+		
+		//originFileName 확장자까지 뽑아내기위해서
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+		String originFileName = file.getOriginalFilename();
+		String renameFileName = sdf.format(new Date(System.currentTimeMillis())) + originFileName.substring(originFileName.lastIndexOf("."));
+		
+		String renamePath = folder + "\\" + renameFileName;
+		
+		try {
+			//저장소에 새로만든 이름으로 저장
+			file.transferTo(new File(renamePath));
+		} catch (IllegalStateException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return renameFileName;
+	}
+	
+	@RequestMapping("bdetail.bo")
+	public ModelAndView boardDetail(@RequestParam(value="bId") int bId, @RequestParam("page") int page, ModelAndView mv) {
+		Board board = bService.selectBoard(bId);
+		
+		if(board != null) {
+			mv.addObject("board", board).addObject("page", page).setViewName("boardDetailView");
+		} else {
+			throw new BoardException("게시글 상세조회가 실패하였습니다.");
+		}
+		
+		return mv;
+	}
+	
+	//수정하기
+	@RequestMapping("bupView.bo")
+	public String boardUpdateForm(@ModelAttribute Board b, @RequestParam("page") int page, Model model) {
+		model.addAttribute("board", b).addAttribute("page", page);
+		return "boardUpdateForm";
+	}
+	
+	@RequestMapping("bupdate.bo")
+	public String updateBoard(@ModelAttribute Board b, @RequestParam("page") int page,
+								@RequestParam("reloadFile") MultipartFile reloadFile, HttpServletRequest request,
+								Model model) {
+		//*******파일 안넣고 수정하면 if절에 안걸리고 int result = bService.updateBoard(b);을 통하여 업데이트된다
+		//updapeForm에서 히든으로 가져간상태여서 기존 오리진파일네임없어서
+		//디테일뷰폼에서 오리지넣파일내임이 비어있지않을 때로 조건을 주어서
+		//리네임파일은 보이지 않는다. 디비를 확인해보면 오리진은 null로 되어있고 리네임은 값이 들어가있다.
+		//동적쿼리를 작성해서 null일때의 조건을 추가해준다. board-mapping
+		//새로 업로드 되는 파일을 집어넣을거면~기존파일이 있으면 삭제한다
+		if(reloadFile != null && !reloadFile.isEmpty()) {
+			if(b.getRenameFileName() != null) {
+				//저장소의 저장된 파일 삭제(새로운 파일이 들어갈거니까) 삭제 후 넣음 파일을 지우기만해서 반환값이 필요없음
+				deleteFile(b.getRenameFileName(), request);
+			}
+			
+			//새로 업로드할 파일 저장소에 저장을 한다 : saveFile
+			String renameFileName = saveFile(reloadFile, request);
+			b.setOriginalFileName(reloadFile.getOriginalFilename());
+			b.setRenameFileName(renameFileName);
+		}
+		
+		int result = bService.updateBoard(b);
+		//업데이트 성공하면 보여질 상세보기 페이지
+		if(result > 0) {
+			return "redirect:bdetail.bo?bId=" + b.getBoardId() + "&page=" + page;
+		} else {
+			throw new BoardException("게시글 수정에 실패하였습니다.");
+		}
+		
+	}
+	
+	public void deleteFile(String fileName, HttpServletRequest request) {
+		//웹앱안까지 접근해야되서 root사용
+		String root = request.getSession().getServletContext().getRealPath("resources");
+		String savePath = root + "\\buploadFiles";
+		
+		//File클래스에 파일에 관한 정보들이 들어있음
+		File f = new File(savePath + "\\" + fileName);
+		if(f.exists()) {
+			f.delete();
+		}
+		
+	}
+	
+	@RequestMapping("bdelete.bo")
+	public String deleteBoard(@RequestParam("bId") int bId, @RequestParam("renameFileName") String renameFileName, HttpServletRequest request) {//어디서 삭제할건지 request도 넣어준다
+		if(!renameFileName.equals("")) {
+			deleteFile(renameFileName, request);
+		}
+		
+		int result = bService.deleteBoard(bId);
+		
+		if(result > 0) {
+			return "redirect:blist.bo";
+		} else {
+			throw new BoardException("게시글 삭제에 실패하였습니다.");
+		}
+	}
+	
+	//댓글 insert
+	//댓글 저장에 성공했으면 success 반환, 실패했으면 에러 발생 : 댓글 등록에 실패하였습니다.
+	//view에서 success를 반환받으면 댓글 등록 창에 적은 댓글은 지우기
+	@RequestMapping("addReply.bo")
+	@ResponseBody
+	public String addReply(@ModelAttribute Reply r, HttpSession session) {
+		String id =((Member)session.getAttribute("loginUser")).getId();
+		r.setReplyWriter(id);
+		int result = bService.insertReply(r);
+		
+		if(result > 0) {
+			return "success";
+		} else {
+			throw new BoardException("댓글 등록에 실패하였습니다.");
+		}
+		
+	}
+	
+//	@RequestMapping(value="rList.bo", produces="application/json; charset=UTF-8")
+//	@ResponseBody
+//	public String getReplyList(@RequestParam("bId") int bId) {
+	@RequestMapping("rList.bo")
+	public void getReplyList(@RequestParam("bId") int bId, HttpServletResponse response) {
+		ArrayList<Reply> list = bService.selectReplyList(bId);
+		System.out.println(list);
+		//@ResponseBody : 뷰리졸버에게 뷰에대한 경로를 넘기지 않고 데이터로 담아서 보낼수있다
+
+		//제이슨 사용
+		//제이슨 오브젝트 : 댓글 담기, 여러개: 제이슨 어레이->제이슨 어레이에 제이슨 오브젝트가 담긴다
+//		JSONArray jArr = new JSONArray();
+//		for(Reply r : list) {
+//			JSONObject job = new JSONObject();
+//			job.put("replyId", r.getRefBoardId());
+//			job.put("replyContent", r.getReplyContent());
+//			job.put("replyWriter", r.getReplyWriter());
+//			job.put("nickName", r.getNickName());
+//			job.put("refBoardId", r.getRefBoardId());
+//			job.put("replyCreateDate", r.getReplyCreateDate());
+//			job.put("replyModifyDate", r.getReplyModifyDate());
+//			job.put("replyStatus", r.getReplyStatus());
+//			
+//			jArr.put(job);
+//		}
+	
+//		return jArr.toString();
+		
+		response.setContentType("application/json; charset=UTF-8");
+		Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+		try {
+			gson.toJson(list, response.getWriter());
+		} catch (JsonIOException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+//	@ResponseBody
+//	@RequestMapping(value="topList.bo", produces="application/json; charset=UTF-8")
+	@RequestMapping("topList.bo")
+//	public String topList(HttpServletResponse response) {
+	public void topList(HttpServletResponse response) {
+		ArrayList<Board> list = bService.topList();
+		
+		//방법1. 제이슨 어레이
+//		JSONArray jArr = new JSONArray();
+//		for(Board b : list) {
+//			JSONObject job = new JSONObject();
+//			job.put("boardId", b.getBoardId());
+//			job.put("boardTitle", b.getBoardTitle());
+//			job.put("nickName", b.getNickName());
+//			job.put("boardContent", b.getBoardContent());
+//			job.put("originalFileName", b.getOriginalFileName());
+//			job.put("boardCount", b.getBoardCount());
+//			job.put("boardCreateDate", b.getBoardCreateDate());
+//			
+//			jArr.put(job);
+//		}
+//		
+//		return jArr.toString();
+		
+		//방법2. json
+		response.setContentType("application/json; charset=UTF-8"); 
+		Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+		try {
+			gson.toJson(list, response.getWriter());
+		} catch (JsonIOException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		
+	}
+}
